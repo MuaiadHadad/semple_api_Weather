@@ -2,11 +2,21 @@
 
 REST API desenvolvida em Python para consultar previsões meteorológicas do Instituto Português do Mar e da Atmosfera (IPMA).
 
+![Interface Web](readme%20img/Screenshot%202025-10-04%20at%2018.49.13.png)
+
 ## Descrição
 
 Aplicação que permite consultar previsões meteorológicas para qualquer localidade em Portugal através de uma API RESTful simples. Os dados são obtidos em tempo real da API pública do IPMA.
 
 **Inclui interface web para testes (sem necessidade de Postman)!**
+
+## Screenshots
+
+### Interface Principal
+![Distritos e Localidades](readme%20img/Screenshot%202025-10-04%20at%2018.49.13.png)
+
+### Previsão Meteorológica
+![Resultado da Previsão](readme%20img/Screenshot%202025-10-04%20at%2018.49.40.png)
 
 ## Características
 
