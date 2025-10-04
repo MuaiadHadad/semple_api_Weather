@@ -1,0 +1,25 @@
+# Ignorar ficheiros desnecessários no build Docker
+.git
+.gitignore
+.idea
+.vscode
+venv
+ENV
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+README.md
+.env
+*.md
+.DS_Store
+install.sh
+run.sh
+

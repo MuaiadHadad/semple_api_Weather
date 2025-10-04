@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Previsão IPMA - Teste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .result {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .previsao-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .previsao-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .info-item {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-item strong {
+            color: #333;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .lista-item {
+            padding: 10px;
+            background: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lista-item:hover {
+            background: #e9ecef;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌤️ API Previsão Meteorológica IPMA</h1>
+            <p class="subtitle">Interface de Teste - Consulte previsões do tempo para Portugal</p>
+        </header>
+
+        <div class="cards">
+            <div class="card">
+                <h2>📍 Distritos</h2>
+                <button onclick="listarDistritos()">Listar Todos os Distritos</button>
+                <div class="loading" id="loading-distritos">Carregando...</div>
+                <div class="result" id="result-distritos"></div>
+            </div>
+
+            <div class="card">
+                <h2>🏘️ Localidades</h2>
+                <div class="form-group">
+                    <label for="distrito-select">Escolha o Distrito:</label>
+                    <select id="distrito-select">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <button onclick="listarLocalidades()">Listar Localidades</button>
+                <div class="loading" id="loading-localidades">Carregando...</div>
+                <div class="result" id="result-localidades"></div>
+            </div>
+
+            <div class="card">
+                <h2>☀️ Previsão do Tempo</h2>
+                <div class="form-group">
+                    <label for="localidade-id">ID da Localidade:</label>
+                    <input type="number" id="localidade-id" placeholder="Ex: 1110600 (Lisboa)">
+                </div>
+                <div class="form-group">
+                    <label for="dias-previsao">Número de Dias:</label>
+                    <input type="number" id="dias-previsao" value="5" min="1" max="10">
+                </div>
+                <button onclick="obterPrevisao()">Consultar Previsão</button>
+                <div class="loading" id="loading-previsao">Carregando...</div>
+                <div class="result" id="result-previsao"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>API de Previsão Meteorológica - IPMA | Dados obtidos em tempo real</p>
+        </footer>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        // Carregar distritos no select
+        async function carregarDistritosSelect() {
+            try {
+                const response = await fetch(`${API_URL}/distritos`);
+                const data = await response.json();
+
+                const select = document.getElementById('distrito-select');
+                data.distritos.forEach(distrito => {
+                    const option = document.createElement('option');
+                    option.value = distrito.id;
+                    option.textContent = distrito.nome;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar distritos:', error);
+            }
+        }
+
+        // Listar distritos
+        async function listarDistritos() {
+            const loading = document.getElementById('loading-distritos');
+            const result = document.getElementById('result-distritos');
+
+            loading.classList.add('active');
+            result.classList.remove('active');
+
+            try {
+                const response = await fetch(`${API_URL}/distritos`);
+                const data = await response.json();
+
+                loading.classList.remove('active');
+
+                if (data.sucesso) {
+                    let html = `<h3>Total: ${data.total} distritos</h3>`;
+                    data.distritos.forEach(distrito => {
+                        html += `
+                            <div class="lista-item">
+                                <span>${distrito.nome}</span>
+                                <span class="badge">ID: ${distrito.id}</span>
+                            </div>
+                        `;
+                    });
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `<div class="error">${data.erro}: ${data.mensagem}</div>`;
+                }
+
+                result.classList.add('active');
+            } catch (error) {
+                loading.classList.remove('active');
+                result.innerHTML = `<div class="error">Erro: ${error.message}</div>`;
+                result.classList.add('active');
+            }
+        }
+
+        // Listar localidades
+        async function listarLocalidades() {
+            const loading = document.getElementById('loading-localidades');
+            const result = document.getElementById('result-localidades');
+            const distritoId = document.getElementById('distrito-select').value;
+
+            loading.classList.add('active');
+            result.classList.remove('active');
+
+            try {
+                const url = distritoId
+                    ? `${API_URL}/localidades?distrito_id=${distritoId}`
+                    : `${API_URL}/localidades`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                loading.classList.remove('active');
+
+                if (data.sucesso) {
+                    let html = `<h3>Total: ${data.total} localidades</h3>`;
+                    html += '<div style="max-height: 400px; overflow-y: auto;">';
+                    data.localidades.slice(0, 50).forEach(loc => {
+                        html += `
+                            <div class="lista-item">
+                                <div>
+                                    <strong>${loc.nome}</strong><br>
+                                    <small>${loc.distrito_nome}</small>
+                                </div>
+                                <span class="badge" style="cursor: pointer;" onclick="document.getElementById('localidade-id').value=${loc.id}">
+                                    ID: ${loc.id}
+                                </span>
+                            </div>
+                        `;
+                    });
+                    if (data.total > 50) {
+                        html += `<p style="text-align: center; color: #666; margin-top: 10px;">Mostrando 50 de ${data.total} localidades</p>`;
+                    }
+                    html += '</div>';
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `<div class="error">${data.erro}: ${data.mensagem}</div>`;
+                }
+
+                result.classList.add('active');
+            } catch (error) {
+                loading.classList.remove('active');
+                result.innerHTML = `<div class="error">Erro: ${error.message}</div>`;
+                result.classList.add('active');
+            }
+        }
+
+        // Obter previsão
+        async function obterPrevisao() {
+            const loading = document.getElementById('loading-previsao');
+            const result = document.getElementById('result-previsao');
+            const localidadeId = document.getElementById('localidade-id').value;
+            const dias = document.getElementById('dias-previsao').value;
+
+            if (!localidadeId) {
+                result.innerHTML = '<div class="error">Por favor, insira o ID da localidade</div>';
+                result.classList.add('active');
+                return;
+            }
+
+            loading.classList.add('active');
+            result.classList.remove('active');
+
+            try {
+                const response = await fetch(`${API_URL}/previsao/${localidadeId}?dias=${dias}`);
+                const data = await response.json();
+
+                loading.classList.remove('active');
+
+                if (data.sucesso) {
+                    let html = `<h3>Previsão para ${data.dados.total_dias} dias</h3>`;
+
+                    data.dados.previsoes.forEach(prev => {
+                        html += `
+                            <div class="previsao-item">
+                                <h4>📅 ${prev.data}</h4>
+                                <p><strong>${prev.descricao_tempo}</strong></p>
+                                <div class="info-row">
+                                    <div class="info-item">
+                                        🌡️ <strong>Min:</strong> ${prev.temperatura_minima}°C
+                                    </div>
+                                    <div class="info-item">
+                                        🌡️ <strong>Max:</strong> ${prev.temperatura_maxima}°C
+                                    </div>
+                                    <div class="info-item">
+                                        💧 <strong>Precip:</strong> ${prev.probabilidade_precipitacao}%
+                                    </div>
+                                    <div class="info-item">
+                                        💨 <strong>Vento:</strong> ${prev.vento_velocidade} km/h
+                                    </div>
+                                    <div class="info-item">
+                                        💧 <strong>Humidade:</strong> ${prev.humidade_relativa}%
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    result.innerHTML = html;
+                } else {
+                    result.innerHTML = `<div class="error">${data.erro}: ${data.mensagem}</div>`;
+                }
+
+                result.classList.add('active');
+            } catch (error) {
+                loading.classList.remove('active');
+                result.innerHTML = `<div class="error">Erro: ${error.message}</div>`;
+                result.classList.add('active');
+            }
+        }
+
+        // Carregar distritos ao iniciar
+        window.onload = () => {
+            carregarDistritosSelect();
+        };
+    </script>
+</body>
+</html>
+
